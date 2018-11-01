@@ -1,5 +1,4 @@
-# 前端CSS入门学习
-
+# 前端入门学习
 
 ## demo
 - demo1 追星女孩四大墙头草
@@ -18,6 +17,13 @@
 - demo14 涟漪按钮
 - demo18 js实现简单的动画效果
 - demo19 登录注册翻转modal
+- demo20 ajax
+- demo21 用node.js搭建静态服务器
+- demo22 跨域
+- demo23 jquery API 的示例用法
+- demo24 jquery 和原生 js 实现 TAB 切换
+- demo25 jquery animate 示例 demo
+- demo26 jquery增删平均布局
 
 ## beanbean
 - 给豆豆写的页面（todo）
