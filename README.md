@@ -26,6 +26,7 @@
 - demo24 jquery 和原生 js 实现 TAB 切换
 - demo25 jquery animate 示例 demo
 - demo26 jquery增删平均布局
+- demo27 canvas 画板 
 
 ## beanbean
 - 给豆豆写的页面（todo）

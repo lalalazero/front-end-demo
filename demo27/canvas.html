@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>JS Bin</title>
+    <style>
+        #canvas {
+            background:green;
+            display: block;
+        }
+
+        body {
+            margin: 0;
+        }
+
+        .buttons {
+            position: fixed;
+            top: 100px;
+            left: 0;
+            background-color: white;
+            opacity: 1;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        #brush {
+            display: none;
+        }
+        .buttons.x #eraser{
+            display: none;
+        }
+
+        .buttons.x #brush{
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id='canvas' width=300 height=300></canvas>
+    <div class="buttons">
+        <span id="eraser" >橡皮擦</span>
+        <span id="brush" >画笔</span>
+    </div>
+    <script>
+        var canvas = document.querySelector('#canvas');
+        var context = canvas.getContext('2d');
+
+        autoConfigCanvas(canvas);
+        var eraserActive = false;
+        listenMouseActions(canvas);
+
+        document.querySelector('#eraser').onclick = function(){
+            eraserActive = true;
+            document.querySelector('.buttons').classList = 'buttons x';
+        }
+
+        document.querySelector('#brush').onclick = function() {
+            eraserActive = false;
+            document.querySelector('.buttons').classList = 'buttons';
+        }
+
+
+
+
+        function autoConfigCanvas(canvas){
+            resizeCanvas(canvas);
+
+            function resizeCanvas(canvas){
+                var pageWidth = document.documentElement.clientWidth;
+                var pageHeight = document.documentElement.clientHeight;
+
+                canvas.width = pageWidth;
+                canvas.height = pageHeight;
+            }
+
+            window.onresize = function(){
+                resizeCanvas(canvas);
+            }
+        }
+
+
+
+        function listenMouseActions(canvas){
+
+            var painting = false;
+            var lastPoint = {x: undefined, y: undefined};
+
+            canvas.onmousedown = function(e){
+                painting = true;
+                var x = e.clientX;
+                var y = e.clientY;
+                lastPoint = {x:x,y:y};
+                // drawCircle(x,y,1);
+            }
+            canvas.onmousemove = function(e){
+                var x = e.clientX;
+                var y = e.clientY;
+                if(painting){
+                    if(eraserActive){
+                        context.clearRect(x,y,10,10);
+                    }else{
+                        var newPoint = {x:x,y:y};
+                        // drawCircle(x,y,1);
+                        drawLine(lastPoint.x,lastPoint.y,x,y);
+                        lastPoint = newPoint;
+                    }
+
+                }
+
+            }
+            canvas.onmouseup = function(e){
+                painting = false;
+            }
+
+            function drawLine(x1,y1,x2,y2){
+                context.beginPath();
+                context.lineWidth = 5;
+                context.strokeStyle = 'black';
+                context.moveTo(x1,y1);
+                context.lineTo(x2,y2);
+                context.stroke();
+                context.closePath();
+            }
+
+            function drawCircle(x,y,radius){
+                context.beginPath();
+                context.fillStyle = 'black';
+                context.arc(x,y,radius,0,Math.PI*2);
+                context.fill();
+            }
+
+        }
+    </script>
+</body>
+</html>
