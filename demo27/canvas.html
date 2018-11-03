@@ -3,11 +3,21 @@
 <head>
     <meta charset="utf-8">
     <title>JS Bin</title>
+    <script src="//code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="//at.alicdn.com/t/font_902564_nraynlgn0n.js"></script>
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <style type="text/css">
+        .icon {
+            width: 1em; height: 1em;
+            vertical-align: -0.15em;
+            fill: currentColor;
+            overflow: hidden;
+        }
+    </style>
     <style>
+
         #canvas {
-            background:green;
             display: block;
         }
 
@@ -15,53 +25,101 @@
             margin: 0;
         }
 
-        .buttons {
+        .icons {
+            margin-left: 10px;
             position: fixed;
-            top: 100px;
+            top: 0;
             left: 0;
-            background-color: white;
-            opacity: 1;
-            padding: 5px;
-            border-radius: 5px;
         }
-        #brush {
-            display: none;
+        .icons>svg{
+            padding: 10px;
+            width: 30px;
+            height: 30px;
+            transition: all 0.3s;
         }
-        .buttons.x #eraser{
-            display: none;
+        .icons>svg.active{
+            transform: scale(1.2);
+            /*color: #ccc;*/
+        }
+        .colorBar {
+            position: fixed;
+            top: 60px;
+            left: 20px;
+        }
+        .colorBar>div {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            box-shadow: 0 0 3px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            margin: 20px 0px;
+        }
+        .black {
+            background-color: black;
+        }
+        .red {
+            background-color: red;
+        }
+        .yellow {
+            background-color: yellow;
+        }
+        .green {
+            background-color: green;
+        }
+        .blue {
+            background-color: blue;
+        }
+        .colorBar>div.active {
+            transform: scale(1.3);
         }
 
-        .buttons.x #brush{
-            display: block;
-        }
+
     </style>
 </head>
 <body>
-    <canvas id='canvas' width=300 height=300></canvas>
-    <div class="buttons">
-        <span id="eraser" >橡皮擦</span>
-        <span id="brush" >画笔</span>
+    <div class="icons">
+        <svg id="pen" class="icon active">
+            <use xlink:href="#icon-pen"></use>
+        </svg>
+        <svg id="eraser" class="icon">
+            <use xlink:href="#icon-eraser"></use>
+        </svg>
     </div>
+    <div class="colorBar">
+        <div class="active black"></div>
+        <div class="red"></div>
+        <div class="yellow"></div>
+        <div class="green"></div>
+        <div class="blue"></div>
+    </div>
+    <canvas id='canvas' width=300 height=300></canvas>
     <script>
         var canvas = document.querySelector('#canvas');
         var context = canvas.getContext('2d');
+
+        var colors = ['black','red','yellow','green','blue'];
+        $('.colorBar').on('click',function (e) {
+            $('.colorBar').children().removeClass('active');
+            $(e.target).addClass('active');
+            context.strokeStyle = colors[$(e.target).index()];
+        })
 
         // pc 上配置画板的长宽
         autoConfigCanvas(canvas);
         var eraserActive = false;
         listenUserActions(canvas);
 
-        document.querySelector('#eraser').onclick = function(){
-            eraserActive = true;
-            document.querySelector('.buttons').classList = 'buttons x';
-        }
-
-        document.querySelector('#brush').onclick = function() {
+        document.querySelector('#pen').onclick =function () {
             eraserActive = false;
-            document.querySelector('.buttons').classList = 'buttons';
+            document.querySelector('#pen').classList.add('active');
+            document.querySelector('#eraser').classList.remove('active');
         }
+        document.querySelector('#eraser').onclick = function () {
+            eraserActive = true;
+            document.querySelector('#eraser').classList.add('active');
+            document.querySelector('#pen').classList.remove('active');
 
-
+        }
 
 
         function autoConfigCanvas(canvas){
@@ -148,7 +206,6 @@
             function drawLine(x1,y1,x2,y2){
                 context.beginPath();
                 context.lineWidth = 5;
-                context.strokeStyle = 'black';
                 context.moveTo(x1,y1);
                 context.lineTo(x2,y2);
                 context.stroke();
@@ -157,7 +214,6 @@
 
             function drawCircle(x,y,radius){
                 context.beginPath();
-                context.fillStyle = 'black';
                 context.arc(x,y,radius,0,Math.PI*2);
                 context.fill();
             }
