@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>JS Bin</title>
     <script src="//code.jquery.com/jquery-1.9.1.min.js"></script>
-    <script src="//at.alicdn.com/t/font_902564_nraynlgn0n.js"></script>
+    <script src="//at.alicdn.com/t/font_902564_gdq3odmj9hh.js"></script>
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <style type="text/css">
@@ -40,7 +40,6 @@
         }
         .icons>svg.active{
             transform: scale(1.2);
-            /*color: #ccc;*/
         }
         .colorBar {
             position: fixed;
@@ -85,6 +84,12 @@
         <svg id="eraser" class="icon">
             <use xlink:href="#icon-eraser"></use>
         </svg>
+        <svg id="clear" class="icon">
+            <use xlink:href="#icon-clear"></use>
+        </svg>
+        <svg id="save" class="icon">
+            <use xlink:href="#icon-down_load"></use>
+        </svg>
     </div>
     <div class="colorBar">
         <div class="active black"></div>
@@ -122,14 +127,31 @@
 
         }
 
+        document.querySelector('#clear').onclick = function () {
+            function clearCanvas() {
+                context.clearRect(0,0,document.documentElement.clientWidth,document.documentElement.clientHeight);
+            }
+            clearCanvas();
+        }
+        document.querySelector('#save').onclick = function (ev) {
+            var url = canvas.toDataURL('image/png');
+            console.log(url);
+            var a = document.createElement('a');
+            document.body.appendChild(a);
+            a.href = url;
+            a.download = 'image';
+            // a.target = '_blank';
+            a.click();
+            document.body.removeChild(a);
+        }
+
 
         function autoConfigCanvas(canvas){
+            var pageWidth = document.documentElement.clientWidth;
+            var pageHeight = document.documentElement.clientHeight;
+
             resizeCanvas(canvas);
-
             function resizeCanvas(canvas){
-                var pageWidth = document.documentElement.clientWidth;
-                var pageHeight = document.documentElement.clientHeight;
-
                 canvas.width = pageWidth;
                 canvas.height = pageHeight;
             }
@@ -137,6 +159,17 @@
             window.onresize = function(){
                 resizeCanvas(canvas);
             }
+            function drawBackgroundWhite(){
+                context.beginPath();
+                context.moveTo(0,0);
+                context.lineTo(pageWidth,0);
+                context.lineTo(pageWidth,pageHeight);
+                context.lineTo(0,pageHeight);
+                context.fillStyle = 'white';
+                context.fill();
+                context.closePath();
+            }
+            drawBackgroundWhite();
         }
 
         function listenUserActions(canvas){
