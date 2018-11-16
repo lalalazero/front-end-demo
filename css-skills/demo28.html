@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="//code.jquery.com/jquery-1.9.1.min.js"></script>
+    <title>图片懒加载</title>
+
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .ct{
+            width: 820px;
+            margin: 0 auto;
+            height: 100vh;
+
+        }
+        .ct>ul{
+            /*background-color: #fdebcb;*/
+            /*margin-right: -10px;*/
+            /*outline: 1px solid green;*/
+        }
+        .ct>ul:after{
+            content: '';
+            display: block;
+            clear: both;
+        }
+        .ct>ul>li{
+            display: inline-block;
+            margin-right: 10px;
+            float: left;
+        }
+        ul,ol{
+            list-style: none;
+        }
+    </style>
+</head>
+<body>
+            <div class="ct">
+                <ul>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                    <li><img src="https://picsum.photos/400/400/?image=200" alt=""></li>
+                </ul>
+            </div>
+
+            <script>
+                $('.ct').on('scroll',function (e) {
+                    if($(e.target) === $(this)){
+                        var height = $(this).height();
+                        var scrollTop = $(this).offset().top;
+                        console.log('height' + height, 'scrollTop' + scrollTop);
+                    }
+
+                })
+                window.onscroll = function (ev) {
+                    console.log('window scroll')
+                }
+
+                $('body').on('scroll',function () {
+                    console.log('body scroll');
+                },false)
+
+                $('body').on('scroll',function () {
+                    console.log('body scroll 11');
+                },true)
+
+                $('.ct>ul').on('scroll',function(e){
+                    //if(e.target === this){
+                        console.log('ul scroll');
+                        var scrollTop = $(this).offset().top;
+                        var height = $(this).height();
+                        var ctHeight = $('.ct').height();
+                        console.log(ctHeight,scrollTop,height);
+                    //}
+                },false)
+            </script>
+
+</body>
+</html>
