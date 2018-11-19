@@ -60,7 +60,11 @@
                     if(this.isHitBottom()){
                         Event.trigger('bottom');
                     }
-                },300))
+                }, 300))
+
+                $(window).on('resize',this.throttle(() => {
+                    Event.trigger('resize');
+                }, 300))
 
                 // window.onscroll = this.throttle(() =>{
                 //     if(this.isHitBottom()){
@@ -163,33 +167,43 @@
                 this.mainNodeWidth = $('.barrel').width();
                 this.rowImages = [];
                 this.rowImagesWidthSum = 0;
+                this.allImages = [];
                 this.bind();
             }
             bind(){
                 Event.on('loadover', e => {
                     //console.log('loadover event received...',e);
-                    this.placeImages(e.detail);
+                    this.allImages.push(...e.detail);
+                    this.barrel(e.detail);
+                })
+                Event.on('resize',e => {
+                    console.log('resizing....')
+                    this.rowImages = [];
+                    this.rowImagesWidthSum = 0;
+                    this.mainNodeWidth = $('.barrel').width();
+                    $('.barrel').empty();
+                    this.barrel(this.allImages);
                 })
             }
-            placeImages(imageArray){
-                imageArray.forEach(image => this.barrel(image));
-            }
-            barrel(imageInfo){
-                //console.log('mainNodeWidth',this.mainNodeWidth);
-                var ratio = imageInfo.webformatWidth / imageInfo.webformatHeight; // 图片宽高比
-                var ratioImageWidth = this.rowHeightBase * ratio;
-                if(ratioImageWidth + this.rowImagesWidthSum <= this.mainNodeWidth){
-                    // 这张图片在这一行还能放得下
-                    this.rowImages.push(imageInfo);
-                    this.rowImagesWidthSum += ratioImageWidth;
-                }else {
-                    // 放不下了，渲染这一行图片
-                    let rowHeight = (this.mainNodeWidth / this.rowImagesWidthSum) * this.rowHeightBase;
-                    this.renderRow(this.rowImages, rowHeight);
-                    // 换新的一行
-                    this.rowImages = [imageInfo];
-                    this.rowImagesWidthSum = ratioImageWidth;
-                }
+            barrel(imageArray){
+                imageArray.forEach(imageInfo => {
+                    //console.log('mainNodeWidth',this.mainNodeWidth);
+                    var ratio = imageInfo.webformatWidth / imageInfo.webformatHeight; // 图片宽高比
+                    var ratioImageWidth = this.rowHeightBase * ratio;
+                    if(ratioImageWidth + this.rowImagesWidthSum <= this.mainNodeWidth){
+                        // 这张图片在这一行还能放得下
+                        this.rowImages.push(imageInfo);
+                        this.rowImagesWidthSum += ratioImageWidth;
+                    }else {
+                        // 放不下了，渲染这一行图片
+                        let rowHeight = (this.mainNodeWidth / this.rowImagesWidthSum) * this.rowHeightBase;
+                        this.renderRow(this.rowImages, rowHeight);
+                        // 换新的一行
+                        this.rowImages = [imageInfo];
+                        this.rowImagesWidthSum = ratioImageWidth;
+                    }
+                })
+
             }
             renderRow(rowImages, rowHeight){
                 rowImages.forEach(function (image) {
