@@ -39,117 +39,182 @@
     <script>
 
 
+        class Event{
+            static on(type, handler){
+                return document.addEventListener(type, handler);
+            }
+            static trigger(type, data){
+                return document.dispatchEvent(new CustomEvent(type, {
+                    detail: data
+                }))
+            }
+        }
 
+        class Interaction {
+            constructor(){
+                this.bind();
+            }
+            bind(){
 
-        var per_page =  20;
-        var page = 1;
-        var hasMore = false;
-        function loadData() {
-            $.ajax({
-                method: 'GET',
-                url: '' + fullUrl(),
-                dataType: 'json'
-            }).done(function (data) {
-                console.log('done..')
-                if(data.totalHits >= per_page * page){
-                    hasMore = true;
+                $(window).on('scroll', this.throttle(() => {
+                    if(this.isHitBottom()){
+                        Event.trigger('bottom');
+                    }
+                },300))
+
+                // window.onscroll = this.throttle(() =>{
+                //     if(this.isHitBottom()){
+                //         Event.trigger('bottom');
+                //     };
+                // },300)
+
+            }
+            throttle(fn, delay){
+                let timer = null;
+                return () => {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => fn.bind(this)(arguments),delay)
+                }
+            }
+            isHitBottom(){
+                console.log('scrolling...hit bottom...')
+                var flag = $(window).scrollTop() + $(window).height() + 10 >= $('.barrel').height();
+                console.log(flag);
+                return flag;
+            }
+        }
+        new Interaction();
+
+        class Loader{
+            constructor(){
+                this.per_page = 20;
+                this.page = 1;
+                this.hasMore = false;
+                this.keyWord = '花';
+                this.isLoading = false;
+                this.bind();
+                this.loadData()
+                    .then(data => { //console.log(data);
+                         this.dealData(data)})
+                    .catch(err => console.log('loadData err..', err));
+            };
+            bind(){
+                Event.on('bottom',e => {
+                    this.loadMore();
+                })
+            }
+            loadData(){
+                if(this.isLoading) { console.log('wait for previous loading...'); return; }
+                this.isLoading = true;
+                return fetch(this.fullUrl()).then( res => {
+                    this.isLoading = false;
+                    return res.json();
+                })
+
+            };
+            loadMore(){
+                //console.log('loadMore enter..')
+                //console.log(this.hasMore);
+                if(this.hasMore){
+                    this.loadData().then(data => this.dealData(data)).catch(err => console.log('loadmore err..', err));
+                }
+            };
+            dealData(data){
+                if(data.totalHits >= this.per_page * this.page){
+                    this.hasMore = true;
                 }else{
-                    hasMore = false;
+                    this.hasMore = false;
                 }
-                if(hasMore){
-                    page += 1;
+                if(this.hasMore){
+                    this.page += 1;
                 }
-                placeImages(data.hits)
-            }).fail(function () {
-                console.log('fail..')
-            })
-        }
-
-        loadData();
-
-
-        function fullUrl(){
-            var data = {
-                key: '5856858-0ecb4651f10bff79efd6c1044',
-                q: '花',
-                image_type: 'photo',
-                per_page: per_page,
-                page: page,
+                Event.trigger('loadover', data.hits)
             }
-            var url = 'https://pixabay.com/api';
-            let arr = [];
-            for(let key in data){
-                arr.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
+            fullUrl(){
+                var data = {
+                    key: '5856858-0ecb4651f10bff79efd6c1044',
+                    q: this.keyWord,
+                    image_type: 'photo',
+                    per_page: this.per_page,
+                    page: this.page,
+                }
+                var url = 'https://pixabay.com/api';
+                let arr = [];
+                for(let key in data){
+                    arr.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
+                }
+                var s = url + '?' + arr.join('&');
+                // console.log(s);
+                return s;
             }
-            var s = url + '?' + arr.join('&');
-            // console.log(s);
-            return s;
         }
-        
-        function placeImages(itemArray) {
-            itemArray.forEach(function (item) {
-                barrel(item);
-            })
-        }
+
+        new Loader();
+
 
         // 木桶布局的思路
         // 判断一行可以放下多少张图片,需要在图片加载完成之前就知道图片的宽高(接口提供了)
         // 放不下的时候换行
         // 换行的关键是上一行的图片撑满容器的宽度
 
-        var rowHeightBase = 200;
-        var mainNodeWidth = $('.barrel').width();
-        var rowImages = [];
-        var rowImagesWidthSum = 0;
-        function barrel(imageInfo) {
-            console.log('mainNodeWidth',mainNodeWidth);
-            var ratio = imageInfo.webformatWidth / imageInfo.webformatHeight; // 图片宽高比
-            var ratioImageWidth = rowHeightBase * ratio;
-            if(ratioImageWidth + rowImagesWidthSum <= mainNodeWidth){
-                // 这张图片在这一行还能放得下
-                rowImages.push(imageInfo);
-                rowImagesWidthSum += ratioImageWidth;
-            }else {
-                // 放不下了，渲染这一行图片
-                let rowHeight = (mainNodeWidth / rowImagesWidthSum) * rowHeightBase;
-                renderRow(rowImages, rowHeight);
-                // 换新的一行
-                rowImages = [imageInfo];
-                rowImagesWidthSum = ratioImageWidth;
+        class Barrel{
+            constructor(){
+                this.rowHeightBase = 200;
+                this.mainNodeWidth = $('.barrel').width();
+                this.rowImages = [];
+                this.rowImagesWidthSum = 0;
+                this.bind();
+            }
+            bind(){
+                Event.on('loadover', e => {
+                    //console.log('loadover event received...',e);
+                    this.placeImages(e.detail);
+                })
+            }
+            placeImages(imageArray){
+                imageArray.forEach(image => this.barrel(image));
+            }
+            barrel(imageInfo){
+                //console.log('mainNodeWidth',this.mainNodeWidth);
+                var ratio = imageInfo.webformatWidth / imageInfo.webformatHeight; // 图片宽高比
+                var ratioImageWidth = this.rowHeightBase * ratio;
+                if(ratioImageWidth + this.rowImagesWidthSum <= this.mainNodeWidth){
+                    // 这张图片在这一行还能放得下
+                    this.rowImages.push(imageInfo);
+                    this.rowImagesWidthSum += ratioImageWidth;
+                }else {
+                    // 放不下了，渲染这一行图片
+                    let rowHeight = (this.mainNodeWidth / this.rowImagesWidthSum) * this.rowHeightBase;
+                    this.renderRow(this.rowImages, rowHeight);
+                    // 换新的一行
+                    this.rowImages = [imageInfo];
+                    this.rowImagesWidthSum = ratioImageWidth;
+                }
+            }
+            renderRow(rowImages, rowHeight){
+                rowImages.forEach(function (image) {
+                    var ratio = image.webformatWidth / image.webformatHeight; // 图片宽高比
+                    var figure = document.createElement('figure');
+                    var imgNode = document.createElement('img');
+                    imgNode.src = image.webformatURL;
+                    figure.appendChild(imgNode);
+                    figure.style.height = rowHeight + 'px';
+                    figure.style.width = rowHeight * ratio + 'px';
+                    document.querySelector('.barrel').appendChild(figure);
+                })
             }
         }
+
+        new Barrel();
+
+
+
         
-        function renderRow(rowImages, rowHeight) {
-            rowImages.forEach(function (image) {
-                var ratio = image.webformatWidth / image.webformatHeight; // 图片宽高比
-                var figure = document.createElement('figure');
-                var imgNode = document.createElement('img');
-                imgNode.src = image.webformatURL;
-                figure.appendChild(imgNode);
-                figure.style.height = rowHeight + 'px';
-                figure.style.width = rowHeight * ratio + 'px';
-                document.querySelector('.barrel').appendChild(figure);
-            })
-        }
 
-        function loadMore() {
-            if(hasMore){
-                loadData();
-            }
-        }
 
-        $(window).on('scroll',function () {
-            if(isHitBottom()){
-                loadMore();
-            }
-        })
 
-        function isHitBottom() {
-            console.log('scrolling...hit bottom...')
-            var flag = $(window).scrollTop() + $(window).height() + 10 >= $('.barrel').height();
-            console.log(flag);
-            return flag;
-        }
+
+
     </script>
 </body>
 </html>
