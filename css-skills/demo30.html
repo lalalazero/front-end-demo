@@ -2,12 +2,118 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <script src="//code.jquery.com/jquery-1.9.1.min.js"></script>
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>木桶布局</title>
+
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .barrel{
+            padding: 0 10px;
+        }
+
+        .barrel>figure {
+            display: inline-block;
+            padding: 0 2px;
+        }
+
+        .barrel>figure>img{
+            width: 100%;
+            height: 100%;
+        }
+
+
+    </style>
 </head>
+
 <body>
-    还未完成..
+
+    <main class="barrel">
+
+    </main>
+    <script>
+
+        $.ajax({
+            method: 'GET',
+            url: '' + fullUrl(),
+            dataType: 'json'
+        }).done(function (data) {
+            console.log('done..')
+            placeImages(data.hits)
+        }).fail(function () {
+            console.log('fail..')
+        })
+
+        function fullUrl(){
+            var data = {
+                key: '5856858-0ecb4651f10bff79efd6c1044',
+                q: '花',
+                image_type: 'photo',
+                per_page: 20,
+                page: 1
+            }
+            var url = 'https://pixabay.com/api';
+            let arr = [];
+            for(let key in data){
+                arr.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
+            }
+            var s = url + '?' + arr.join('&');
+            // console.log(s);
+            return s;
+        }
+        
+        function placeImages(itemArray) {
+            itemArray.forEach(function (item) {
+                barrel(item);
+            })
+        }
+
+        // 木桶布局的思路
+        // 判断一行可以放下多少张图片,需要在图片加载完成之前就知道图片的宽高(接口提供了)
+        // 放不下的时候换行
+        // 换行的关键是上一行的图片撑满容器的宽度
+
+        var rowHeightBase = 200;
+        var mainNodeWidth = $('.barrel').width();
+        var rowImages = [];
+        var rowImagesWidthSum = 0;
+        function barrel(imageInfo) {
+            console.log('mainNodeWidth',mainNodeWidth);
+            var ratio = imageInfo.webformatWidth / imageInfo.webformatHeight; // 图片宽高比
+            var ratioImageWidth = rowHeightBase * ratio;
+            if(ratioImageWidth + rowImagesWidthSum <= mainNodeWidth){
+                // 这张图片在这一行还能放得下
+                rowImages.push(imageInfo);
+                rowImagesWidthSum += ratioImageWidth;
+            }else {
+                // 放不下了，渲染这一行图片
+                let rowHeight = (mainNodeWidth / rowImagesWidthSum) * rowHeightBase;
+                renderRow(rowImages, rowHeight);
+                // 换新的一行
+                rowImages = [imageInfo];
+                rowImagesWidthSum = ratioImageWidth;
+            }
+        }
+        
+        function renderRow(rowImages, rowHeight) {
+            rowImages.forEach(function (image) {
+                var ratio = image.webformatWidth / image.webformatHeight; // 图片宽高比
+                var figure = document.createElement('figure');
+                var imgNode = document.createElement('img');
+                imgNode.src = image.webformatURL;
+                figure.appendChild(imgNode);
+                figure.style.height = rowHeight + 'px';
+                figure.style.width = rowHeight * ratio + 'px';
+                document.querySelector('.barrel').appendChild(figure);
+            })
+        }
+
+    </script>
 </body>
 </html>
