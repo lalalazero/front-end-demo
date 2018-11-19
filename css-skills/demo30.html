@@ -35,28 +35,46 @@
 <body>
 
     <main class="barrel">
-
     </main>
     <script>
 
-        $.ajax({
-            method: 'GET',
-            url: '' + fullUrl(),
-            dataType: 'json'
-        }).done(function (data) {
-            console.log('done..')
-            placeImages(data.hits)
-        }).fail(function () {
-            console.log('fail..')
-        })
+
+
+
+        var per_page =  20;
+        var page = 1;
+        var hasMore = false;
+        function loadData() {
+            $.ajax({
+                method: 'GET',
+                url: '' + fullUrl(),
+                dataType: 'json'
+            }).done(function (data) {
+                console.log('done..')
+                if(data.totalHits >= per_page * page){
+                    hasMore = true;
+                }else{
+                    hasMore = false;
+                }
+                if(hasMore){
+                    page += 1;
+                }
+                placeImages(data.hits)
+            }).fail(function () {
+                console.log('fail..')
+            })
+        }
+
+        loadData();
+
 
         function fullUrl(){
             var data = {
                 key: '5856858-0ecb4651f10bff79efd6c1044',
                 q: '花',
                 image_type: 'photo',
-                per_page: 20,
-                page: 1
+                per_page: per_page,
+                page: page,
             }
             var url = 'https://pixabay.com/api';
             let arr = [];
@@ -114,6 +132,24 @@
             })
         }
 
+        function loadMore() {
+            if(hasMore){
+                loadData();
+            }
+        }
+
+        $(window).on('scroll',function () {
+            if(isHitBottom()){
+                loadMore();
+            }
+        })
+
+        function isHitBottom() {
+            console.log('scrolling...hit bottom...')
+            var flag = $(window).scrollTop() + $(window).height() + 10 >= $('.barrel').height();
+            console.log(flag);
+            return flag;
+        }
     </script>
 </body>
 </html>
