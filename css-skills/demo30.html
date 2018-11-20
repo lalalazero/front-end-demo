@@ -28,12 +28,41 @@
             height: 100%;
         }
 
+        .inputWrapper{
+            text-align: center;
+            padding: 50px 0;
+        }
+        .inputWrapper>input[type=text]{
+            margin-right: 10px;
+            line-height: 20px;
+            padding: 5px;
+            box-sizing: border-box;
+            width: 180px;
+        }
+        .inputWrapper>input[type=text]:focus{
+            outline: none;
+        }
+        .inputWrapper>button{
+            padding: 5px 15px;
+            line-height: 20px;
+            background-color: #ccc;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+        }
+        .inputWrapper>button:focus{
+            outline: none;
+            opacity: 0.8;
+        }
+
 
     </style>
 </head>
 
 <body>
 
+    <div class="inputWrapper">
+        <input id='input' type="text" placeholder="输入关键字，回车搜索图片"><button id="button">搜索</button>
+    </div>
     <main class="barrel">
     </main>
     <script>
@@ -66,6 +95,24 @@
                     Event.trigger('resize');
                 }, 300))
 
+                $('#input').on('keydown',function (e) {
+                    if(e.keyCode === 13){
+                        console.log('enter key down...');
+                        let keyword = e.target.value.trim();
+                        if(keyword.length > 0){
+                            console.log('keyword=' + keyword);
+                            Event.trigger('search',keyword);
+                        }
+                    }
+                })
+
+                $('#button').on('click',function () {
+                    let keyword = $('#input').val().trim();
+                    if(keyword.length > 0){
+                        Event.trigger('search', keyword);
+                    }
+                })
+
                 // window.onscroll = this.throttle(() =>{
                 //     if(this.isHitBottom()){
                 //         Event.trigger('bottom');
@@ -94,17 +141,25 @@
                 this.per_page = 20;
                 this.page = 1;
                 this.hasMore = false;
-                this.keyWord = '花';
+                this.keyWord = '';
                 this.isLoading = false;
                 this.bind();
-                this.loadData()
-                    .then(data => { //console.log(data);
-                         this.dealData(data)})
-                    .catch(err => console.log('loadData err..', err));
+                // this.loadData()
+                //     .then(data => { //console.log(data);
+                //          this.dealData(data)})
+                //     .catch(err => console.log('loadData err..', err));
             };
             bind(){
                 Event.on('bottom',e => {
                     this.loadMore();
+                })
+                Event.on('search',e => {
+                    console.log('received search event...data=' + e.detail);
+                    this.keyWord = e.detail;
+                    this.page = 1;
+                    this.hasMore = false;
+                    this.isLoading = false;
+                    this.loadData().then(data => this.dealData(data)).catch(err => console.log('loadData err...', err))
                 })
             }
             loadData(){
@@ -172,7 +227,7 @@
             }
             bind(){
                 Event.on('loadover', e => {
-                    //console.log('loadover event received...',e);
+                    console.log('loadover event received...',e);
                     this.allImages.push(...e.detail);
                     this.barrel(e.detail);
                 })
@@ -183,6 +238,13 @@
                     this.mainNodeWidth = $('.barrel').width();
                     $('.barrel').empty();
                     this.barrel(this.allImages);
+                })
+                Event.on('search', e => {
+                    this.allImages = [];
+                    this.rowImages = [];
+                    this.rowImagesWidthSum = 0;
+                    $('.barrel').empty();
+                    this.mainNodeWidth = $('.barrel').width();
                 })
             }
             barrel(imageArray){
@@ -203,6 +265,11 @@
                         this.rowImagesWidthSum = ratioImageWidth;
                     }
                 })
+                // 渲染最后一行
+                if(this.rowImages.length > 0){
+                    let rowHeight = (this.mainNodeWidth / this.rowImagesWidthSum) * this.rowHeightBase;
+                    this.renderRow(this.rowImages, rowHeight);
+                }
 
             }
             renderRow(rowImages, rowHeight){
