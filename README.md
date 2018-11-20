@@ -1,39 +1,17 @@
-# 前端入门学习
+# 前端练习
 
-[预览地址](https://lalalazero.github.io/front-end-demo/)
+[首页预览](https://lalalazero.github.io/front-end-demo/)
 
-## demo
-- demo1 追星女孩四大墙头草
-- demo2 精灵图
-- demo3 字体图标
-- demo4 浮动、清除浮动
-- demo5 导航栏
-- demo6 通知样式
-- demo7 平均布局
-- demo8 垂直居中
-- demo9 带伪元素的bubble提示框
-- demo10 网站练习——少年刘昊然
-- demo11 白屏和FOUC效果
-- demo12 模仿百度首页
-- demo13 上传头像并预览
-- demo14 涟漪按钮
-- demo18 js实现简单的动画效果
-- demo19 登录注册翻转modal
-- demo20 ajax
-- demo21 用node.js搭建静态服务器
-- demo22 跨域
-- demo23 jquery API 的示例用法
-- demo24 jquery 和原生 js 实现 TAB 切换
-- demo25 jquery animate 示例 demo
-- demo26 jquery增删平均布局
-- demo27 canvas 画板 
+## css
 
-## beanbean
-- 给豆豆写的页面（todo）
+xxx
 
-## css-skills 技巧和套路总结
-- demo15 文本溢出（单行和多行）
-- demo16 文字两端对齐
-- demo17 1比1的div
+## js
+
+xx
+
+## 静态页面
+
+xx
 
 
