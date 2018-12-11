@@ -5,9 +5,194 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="//code.jquery.com/jquery-1.9.1.min.js"></script>
     <title>轮播</title>
+
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        ul,ol{
+            list-style: none;
+        }
+
+
+        .carousel{
+            width: 400px;
+            height: 240px;
+            margin: 30px auto;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .list{
+            position: absolute;
+        }
+
+        .list:after{
+            content: '';
+            display: block;
+            clear: both;
+        }
+
+        .list>li{
+            float: left;
+        }
+
+        .carousel img{
+            width: 400px;
+            height: 200px;
+        }
+
+
+
+        .btn{
+            position: absolute;
+            top: 50%;
+            transform: translate(0,-50%);
+            width: 32px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            border: 1px solid white;
+        }
+
+        .btn:hover{
+            opacity: 0.8;
+            cursor: pointer;
+        }
+
+        .btn>span{
+            height: 30px;
+            line-height: 30px;
+            color: white;
+        }
+
+        .preBtn{
+            left: 10px;
+        }
+
+        .nextBtn{
+            right: 10px;
+        }
+
+        .bottom_ct{
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translate(-50%, 0);
+        }
+
+        .bottom_ct>ul{
+            width: 142px;
+            display: flex;
+        }
+
+        .bottom_ct>ul>li{
+            height: 6px;
+            width: 25px;
+            border-radius: 3px;
+            margin-left: 10px;
+            background-color: yellow;
+        }
+
+        .bottom_ct>ul:hover{
+            cursor: pointer;
+        }
+
+        .bottom_ct>ul>li.active{
+            background-color: red;
+        }
+
+
+
+    </style>
 </head>
 <body>
-        还未完成...
+        <div class="carousel">
+            <ul class="list">
+                <li>
+                    <a href="#">
+                        <img src="https://pixabay.com/get/e835b30729f4003ed1584d05fb1d439ee671ead011ac104491f4c570a7ecb5bd_640.jpg
+" alt="">           </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <img src="https://pixabay.com/get/e835b3072af1043ed1584d05fb1d439ee671ead011ac104491f4c570a7ecb5bd_640.jpg
+" alt="">
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <img src="https://pixabay.com/get/ec31b00a28f51c22d2524518b7494e93e57fe7dd04b0144591f4c879a6ecb0_640.jpg
+" alt="">
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <img src="https://pixabay.com/get/eb35b20f2bf5003ed1584d05fb1d439ee671ead011ac104491f4c570a7ecb4bd_640.jpg" alt="">
+                    </a>
+                </li>
+            </ul>
+            <div class="btn preBtn" href="#"><span>&lt;</span></div>
+            <div class="btn nextBtn" href="#"><span>&gt;</span></div>
+            <div class="bottom_ct">
+                <ul>
+                    <li class="active"></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                </ul>
+            </div>
+        </div>
+
+        <script>
+            function Carousel($node) {
+
+                this.init = function ($node) {
+                    console.log('init enter..')
+                    this.$container = $node;
+                    this.$ul = this.$container.find('.list');
+                    this.$li = this.$ul.find('li');
+                    this.imgCount = this.$li.length;
+                    this.imgWidth = this.$li.width();
+
+                    this.$preBtn = this.$container.find('.preBtn');
+                    this.$nextBtn = this.$container.find('.nextBtn');
+
+                    this.$ul.prepend(this.$li.last().clone());
+                    this.$ul.append(this.$li.first().clone());
+
+                    // 初始化 $ul 的宽度
+                    this.$ul.css({'width': (this.imgCount+2) * this.imgWidth})
+                    this.$ul.css({'left': -this.imgWidth})
+
+
+                }
+
+                this.bind = function ($node) {
+                    console.log('bind enter..')
+                    var _this = this;
+                    this.$nextBtn.on('click',()=>{
+                        _this.playNext();
+                    })
+                }
+
+                this.playNext = function () {
+                    this.$ul.animate({
+                        'left': '-=' + this.imgWidth
+                    }, function () {
+                        console.log('animate end..')
+                    })
+                }
+
+                this.init($node);
+                this.bind($node);
+            }
+
+            var carousel = new Carousel($('.carousel'));
+        </script>
 </body>
 </html>
